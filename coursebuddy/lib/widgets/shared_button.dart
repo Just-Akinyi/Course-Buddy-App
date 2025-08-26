@@ -17,21 +17,19 @@ class SharedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        // Use the primaryColor from your theme
-        backgroundColor: AppTheme.primaryColor,
-        // Use a light color for the icon and text
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.primaryColor, // Theme primary color
+        foregroundColor: Colors.white, // Icon and text color
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 6,
+        textStyle: TextStyle(color: Colors.white, fontSize: 16),
       ),
-      icon: Icon(icon, size: 22),
+      icon: Icon(icon, size: 22, color: Colors.white),
       label: Text(
         label,
         style: TextStyle(
           fontSize: 16,
-          // Use textColor from your theme if needed, or keep white for contrast
-          color: AppTheme.textColor,
+          color: Colors.white, // Ensure contrast with primaryColor
         ),
       ),
       onPressed: onPressed,

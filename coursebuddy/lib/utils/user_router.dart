@@ -1,11 +1,10 @@
+import 'package:coursebuddy/screens/admin/admin_dashboard.dart';
+import 'package:coursebuddy/screens/guest/not_registered_screen.dart';
+import 'package:coursebuddy/screens/parent/parent_dashboard.dart';
+import 'package:coursebuddy/screens/student/student_dashboard.dart';
+import 'package:coursebuddy/screens/teacher/teacher_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../screens/admin/admin_dashboard.dart';
-import '../screens/teacher/teacher_dashboard.dart';
-import '../screens/student/student_dashboard.dart';
-import '../screens/parent/parent_dashboard.dart';
-import '../screens/Guest/not_registered_screen.dart';
 
 /// Returns the correct dashboard widget for a given user email.
 Future<Widget> getDashboardForUser(String email) async {
