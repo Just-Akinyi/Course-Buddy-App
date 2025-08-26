@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:coursebuddy/assets/theme/app_theme.dart';
 import 'package:coursebuddy/services/auth_service.dart';
-import 'package:coursebuddy/widgets/shared_button.dart';
+import 'package:flutter/material.dart';
+import '../../widgets/shared_button.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -14,9 +15,9 @@ class LoginScreen extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF2196F3), Color(0xFF21CBF3)],
+            colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -37,13 +38,13 @@ class LoginScreen extends StatelessWidget {
                   children: [
                     const FlutterLogo(size: 64),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       'Welcome to CourseBuddy',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: AppTheme.textColor, // Use textColor from theme
                       ),
                     ),
                     const SizedBox(height: 16),

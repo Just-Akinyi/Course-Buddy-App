@@ -1,22 +1,15 @@
+import 'package:coursebuddy/utils/error_util.dart';
+import 'package:coursebuddy/utils/user_router.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-import '../utils/error_util.dart';
-
-import '../screens/admin/admin_dashboard.dart';
-import '../screens/teacher/teacher_dashboard.dart';
-import '../screens/student/student_dashboard.dart';
-import '../screens/parent/parent_dashboard.dart';
-import '../screens/not_registered_screen.dart';
-
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  /// Sign in with Google, keep logged-in users even if not registered
   Future<void> signInWithGoogle(BuildContext context) async {
     try {
       final googleUser = await _googleSignIn.signIn();
@@ -48,61 +41,8 @@ class AuthService {
         }, SetOptions(merge: true));
       }
 
-      await routeUserAfterLogin(email, context);
-    } catch (e, stack) {
-      showError(context, e, stack);
-    }
-  }
-
-  /// Checks Firestore collections to route user dynamically
-  Future<void> routeUserAfterLogin(String email, BuildContext context) async {
-    try {
-      late final Widget target;
-
-      // Check in students
-      final studentDoc = await FirebaseFirestore.instance
-          .collection('students')
-          .doc(email)
-          .get();
-      if (studentDoc.exists && studentDoc.data() != null) {
-        final Map<String, dynamic> studentData = Map<String, dynamic>.from(
-          studentDoc.data()!,
-        );
-        final courseId =
-            studentData['courseId']?.toString() ?? "default_course";
-        target = StudentDashboard(courseId: courseId);
-      } else {
-        // Check in parents
-        final parentDoc = await FirebaseFirestore.instance
-            .collection('parents')
-            .doc(email)
-            .get();
-        if (parentDoc.exists) {
-          target = ParentDashboard();
-        } else {
-          // Check in teachers
-          final teacherDoc = await FirebaseFirestore.instance
-              .collection('teachers')
-              .doc(email)
-              .get();
-          if (teacherDoc.exists) {
-            target = TeacherDashboard();
-          } else {
-            // Check in admins
-            final adminDoc = await FirebaseFirestore.instance
-                .collection('admins')
-                .doc(email)
-                .get();
-            if (adminDoc.exists) {
-              target = AdminDashboard();
-            } else {
-              // Not registered → keep logged in, show message
-              target = NotRegisteredScreen();
-            }
-          }
-        }
-      }
-
+      // Route to dashboard using shared helper
+      final target = await getDashboardForUser(email);
       Navigator.of(
         context,
       ).pushReplacement(MaterialPageRoute(builder: (_) => target));

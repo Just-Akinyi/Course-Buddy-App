@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:coursebuddy/assets/theme/app_theme.dart';
 
 class SharedButton extends StatelessWidget {
   final IconData icon;
@@ -16,14 +17,23 @@ class SharedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blueAccent,
+        // Use the primaryColor from your theme
+        backgroundColor: AppTheme.primaryColor,
+        // Use a light color for the icon and text
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 6,
       ),
       icon: Icon(icon, size: 22),
-      label: Text(label, style: const TextStyle(fontSize: 16)),
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 16,
+          // Use textColor from your theme if needed, or keep white for contrast
+          color: AppTheme.textColor,
+        ),
+      ),
       onPressed: onPressed,
     );
   }
