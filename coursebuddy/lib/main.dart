@@ -1,122 +1,195 @@
-import 'package:flutter/material.dart';
+// Proceed to build the admin UI and Cloud Function, knowing unauthorized access is prevented.
 
-void main() {
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
+// 🚀 Tonight’s Phase 3 Plan
+// 1. 🎨 Admin UI: "Add User" Screen
+// Create a new screen under lib/screens/admin/add_user_screen.dart
+
+// Form fields:
+
+// Email
+
+// Role (dropdown: student, teacher, parent)
+
+// LinkedTo field (showable only if role is teacher or parent)
+
+// Use the existing SharedButton as the submit button
+
+// 2. ☁️ Backend: Cloud Function Setup
+// Initialize Firebase Functions (Node.js / TypeScript):
+
+// firebase init functions
+
+// Install firebase-admin
+
+// Define a callable function createUser() that:
+
+// Checks if the requesting user (via context.auth.uid) has role == 'admin' in Firestore
+
+// Creates new Firebase Auth user via Admin SDK
+
+// Writes users/{uid} and roles/{uid} documents
+
+// Returns success or error
+
+// 3. ✏️ Integrate Function in Flutter
+// Use cloud_functions package to call the function from the Admin UI
+
+// Handle success: show confirmation dialog, clear form
+
+// Handle errors: use showError(...)
+
+// ✅ Summary Checklist Tonight
+//  Create AddUserScreen UI
+
+//  Initialize Firebase Functions
+
+//  Implement createUser Cloud Function
+
+//  Connect Flutter to function and test admin flow
+
+//  Update Firestore security rules
+
+import 'screens/auth/login_screen.dart';
+import 'services/auth_service.dart';
+import 'widgets/global_fcm_listener.dart'; // ✅ add this import
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  // Catch Flutter framework errors
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  // Catch any async errors
+  WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    return GlobalFcmListener(
+      // ✅ wrap your entire app
+      child: MaterialApp(
+        title: 'CourseBuddy',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(useMaterial3: true, primarySwatch: Colors.blue),
+        // home: AuthGate(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => AuthGate(),
+          '/login': (context) => const LoginScreen(),
+          // Optional: add direct routes to dashboards if needed
+        },
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class AuthGate extends StatelessWidget {
+  final AuthService _authService = AuthService();
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  AuthGate({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (ctx, snapshot) {
+        if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(child: Text("An error occurred.")),
+          );
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.data == null) {
+          return const LoginScreen();
+        }
+
+        // Wait a frame and route the user
+        // Delay navigation to avoid rebuild conflicts
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _authService.routeUserAfterLogin(snapshot.data!.uid, ctx);
+        });
+
+        return const SizedBox(); // Return empty while redirecting
+      },
     );
   }
 }
+
+// add global error logging (e.g. Firebase Crashlytics or Sentry) or UI-level error dialogs✅
+
+// Add bottom navigation/tab UIs for each dashboard
+
+// Implement role-specific functionality (admin links, content sharing, etc.)
+
+// Let me know if you'd like:
+
+// 🔁 A ZIP of this organized starter✅
+
+// ✅ Or we jump straight into the Admin dashboard logic phase
+
+// You're doing great — ready when you are!
+
+//***********************
+// You need to save each user’s FCM token in Firestore so:
+
+// Admins/teachers can send messages to specific users
+
+// Parents can be notified about their children
+
+// Students get class/quiz updates
+// Add Token Saving in AuthService
+// We'll do it immediately after a successful login:
+
+// 🔁 Update signInWithGoogle() in auth_service.dart:
+
+// import 'package:firebase_messaging/firebase_messaging.dart';
+
+// Future<void> signInWithGoogle(BuildContext context) async {
+//   try {
+//     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+//     if (googleUser == null) return;
+
+//     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+//     final credential = GoogleAuthProvider.credential(
+//       accessToken: googleAuth.accessToken,
+//       idToken: googleAuth.idToken,
+//     );
+
+//     final userCredential = await _auth.signInWithCredential(credential);
+//     final uid = userCredential.user!.uid;
+
+//     // ✅ Save FCM token
+//     final fcmToken = await FirebaseMessaging.instance.getToken();
+//     if (fcmToken != null) {
+//       await FirebaseFirestore.instance.collection('fcmTokens').doc(uid).set({
+//         'token': fcmToken,
+//         'updatedAt': FieldValue.serverTimestamp(),
+//       });
+//     }
+
+//     await routeUserAfterLogin(uid, context);
+//   } catch (e) {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(content: Text('Sign-in failed: $e')),
+//     );
+//   }
+// }
