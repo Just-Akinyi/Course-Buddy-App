@@ -1,9 +1,10 @@
-import 'package:coursebuddy/screens/student/student_materials_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'student_materials_screen.dart';
 
 class StudentDashboard extends StatelessWidget {
-  final String courseId; // Make courseId dynamic
+  final String courseId;
+
   const StudentDashboard({super.key, required this.courseId});
 
   @override

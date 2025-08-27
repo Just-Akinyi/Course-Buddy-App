@@ -15,6 +15,7 @@ class _GlobalFcmListenerState extends State<GlobalFcmListener> {
   void initState() {
     super.initState();
     FirebaseMessaging.onMessage.listen((RemoteMessage msg) {
+      if (!mounted) return;
       final notif = msg.notification;
       if (notif != null) {
         showDialog(

@@ -1,31 +1,7 @@
-// Deploy the function with Blaze plan or use the Emulator for local testing.
-// 1. Local Emulator Setup (since Blaze isn't an option)
-// 2. Cloud Function Testing
-// *********
-// upgrade to use storage and crashlytics
-// **************
-// 1. Create a User in Firebase Auth Console(First admin)
-// Go to Firebase Console → Authentication → Users → Add User.
-
-// Create an account with an email, password, and name of your choice.
-
-// 2. Add Their Role in Firestore
-// In Firestore → Data, create a document in the roles collection.
-
-// Use the new user's UID (shown in the Auth console).
-
-// Set the data:
-
-// {
-//   "role": "admin",
-//   "name": "Your Name",
-//   "linkedTo": []
-// }
+import 'package:flutter/material.dart';
+import 'package:coursebuddy/assets/theme/app_theme.dart';
 import 'package:coursebuddy/screens/admin/add_user_screen.dart';
 import 'package:coursebuddy/screens/admin/user_list_screen.dart';
-import 'package:coursebuddy/utils/error_util.dart';
-import 'package:coursebuddy/widgets/shared_button.dart';
-import 'package:flutter/material.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -33,31 +9,39 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard')),
-      body: Center(
+      appBar: AppBar(
+        title: const Text("Admin Dashboard"),
+        backgroundColor: AppTheme.primaryColor,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SharedButton(
-              label: 'Add User',
-              icon: Icons.person_add,
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+              ),
               onPressed: () {
-                try {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const AddUserScreen()),
-                  );
-                } catch (e, s) {
-                  showError(context, e, s);
-                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddUserScreen()),
+                );
               },
+              child: const Text("Add User"),
             ),
-            const SizedBox(height: 16),
-            SharedButton(
-              label: 'Manage Guests',
-              icon: Icons.manage_accounts,
-              onPressed: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const UserListScreen())),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const UserListScreen()),
+                );
+              },
+              child: const Text("View Users"),
             ),
           ],
         ),

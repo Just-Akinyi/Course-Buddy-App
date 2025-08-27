@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
-void showError(BuildContext context, Object error, [StackTrace? stackTrace]) {
+Future<void> showError(
+  BuildContext context,
+  Object error, [
+  StackTrace? stackTrace,
+  bool mounted = true,
+]) async {
   // Log to Crashlytics
-  FirebaseCrashlytics.instance.recordError(error, stackTrace);
+  try {
+    await FirebaseCrashlytics.instance.recordError(error, stackTrace);
+  } catch (_) {
+    // fail silently if Crashlytics not available
+  }
 
-  // ScaffoldMessenger.of(
-  //   context,
-  // ).showSnackBar(SnackBar(content: Text(error.toString())));
-
-  // Optional: Convert error to user-friendly message
   final errorMessage = error.toString().replaceFirst('Exception: ', '');
 
-  // Show user-friendly dialog
+  if (!context.mounted || !mounted) return;
+
   showDialog(
     context: context,
     builder: (_) => AlertDialog(

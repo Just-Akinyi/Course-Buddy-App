@@ -1,100 +1,111 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:coursebuddy/utils/user_router.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
-class NotRegisteredScreen extends StatefulWidget {
+class NotRegisteredScreen extends StatelessWidget {
   const NotRegisteredScreen({super.key});
 
   @override
-  State<NotRegisteredScreen> createState() => _NotRegisteredScreenState();
-}
-
-class _NotRegisteredScreenState extends State<NotRegisteredScreen> {
-  final _firestore = FirebaseFirestore.instance;
-  final _auth = FirebaseAuth.instance;
-
-  bool _isSaving = false;
-
-  Future<void> _saveGuestUser() async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
-    setState(() => _isSaving = true);
-
-    try {
-      final email = user.email ?? "unknown@example.com"; // ✅ safer fallback
-      final uid = user.uid;
-      final name = user.displayName ?? "Guest User";
-
-      await _firestore.collection("guests").doc(email).set({
-        "uid": uid,
-        "email": email,
-        "name": name,
-        "status": "unregistered",
-        "createdAt": FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("You have been added as a Guest.")),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
-      }
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final user = _auth.currentUser;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return const Scaffold(body: Center(child: Text("Not signed in")));
+    }
+
+    final email = user.email!;
+    final uid = user.uid;
+
+    // Save the FCM token for this guest user
+    _saveGuestToken(uid);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Not Registered")),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.person_off,
-                size: 70,
-                color: Colors.red,
-              ), // ✅ friendlier
-              const SizedBox(height: 20),
-              const Text(
-                "You are not registered yet.",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              if (user != null)
-                Text(
-                  "Logged in as: ${user.email}",
-                  style: const TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _isSaving ? null : _saveGuestUser,
-                child: _isSaving
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Save as Guest"),
-              ),
-              const SizedBox(height: 15),
-              const Text(
-                "An admin will review your account and assign a role.",
+      appBar: AppBar(title: const Text("Awaiting Approval")),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection("guests")
+            .doc(email)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // ✅ If still in guests → show waiting message
+          if (snapshot.hasData && snapshot.data!.exists) {
+            return Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                "Hello ${user.displayName ?? "Guest"},\n\n"
+                "Your account has been saved. An admin will review and assign your role soon.\n"
+                "You’ll be notified once approved.",
                 textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18),
               ),
-            ],
-          ),
-        ),
+            );
+          }
+
+          // ✅ If doc is deleted from guests, check if admin moved them
+          return FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance
+                .collection("users")
+                .doc(user.uid)
+                .get(),
+            builder: (context, userSnapshot) {
+              if (userSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (userSnapshot.hasData && userSnapshot.data!.exists) {
+                final role = userSnapshot.data!['role'] ?? 'member';
+
+                WidgetsBinding.instance.addPostFrameCallback((_) async {
+                  if (!context.mounted) return;
+
+                  // Show snackbar with role info
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "✅ You’ve been approved as a $role!",
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+
+                  // Navigate after showing snackbar
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  if (!context.mounted) return;
+
+                  final dashboard = await getDashboardForUser(email);
+                  if (!context.mounted) return;
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => dashboard),
+                  );
+                });
+              }
+
+              return const Center(
+                child: Text(
+                  "Checking your approval status...",
+                  style: TextStyle(fontSize: 16),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
+  }
+
+  // Helper function to save the FCM token
+  void _saveGuestToken(String uid) async {
+    final token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      await FirebaseFirestore.instance.collection("guestTokens").doc(uid).set({
+        "token": token,
+      });
+    }
   }
 }

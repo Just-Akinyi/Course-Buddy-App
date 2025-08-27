@@ -23,11 +23,12 @@ class _ParentDashboardState extends State<ParentDashboard> {
     _loadChildren();
   }
 
-  void _setupFCM() async {
+  Future<void> _setupFCM() async {
     _messaging = FirebaseMessaging.instance;
     await _messaging.requestPermission();
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (!mounted) return;
       if (message.notification != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -39,7 +40,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
     });
   }
 
-  void _loadChildren() async {
+  Future<void> _loadChildren() async {
     final parentEmail = FirebaseAuth.instance.currentUser?.email;
     if (parentEmail == null) return;
 
@@ -47,6 +48,8 @@ class _ParentDashboardState extends State<ParentDashboard> {
         .collection('students')
         .where('parentEmail', isEqualTo: parentEmail)
         .get();
+
+    if (!mounted) return;
 
     final loadedChildren = childQuery.docs.map((doc) {
       final data = doc.data() as Map<String, dynamic>? ?? {};
@@ -72,12 +75,14 @@ class _ParentDashboardState extends State<ParentDashboard> {
 
   void _openTeacherChat(String teacherEmail) {
     if (teacherEmail == 'Not assigned' || teacherEmail.isEmpty) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("A teacher has not been assigned yet.")),
       );
       return;
     }
 
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -137,7 +142,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
                               onPressed: () => _openTeacherChat(
                                 child['assignedTeacher'] as String? ?? '',
                               ),
-                              icon: Icon(Icons.chat, color: Colors.white),
+                              icon: const Icon(Icons.chat, color: Colors.white),
                               label: const Text("Chat"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primaryColor,
@@ -155,19 +160,13 @@ class _ParentDashboardState extends State<ParentDashboard> {
                         ),
                         Text(
                           'Teacher: ${child['assignedTeacher'] ?? 'Not assigned'}',
-                          style: TextStyle(
-                            color: const Color(
-                              0xB3_000000,
-                            ), // 0xB3 = 70% opacity, 000000 = black
-                          ),
+                          style: const TextStyle(color: Color(0xB3000000)),
                         ),
                         const SizedBox(height: 10),
                         LinearProgressIndicator(
                           value: progress / 100,
                           minHeight: 8,
-                          backgroundColor: const Color(
-                            0x4D_03A9F4,
-                          ), // 0x4D = 30% opacity, 03A9F4 = your secondaryColor
+                          backgroundColor: const Color(0x4D03A9F4),
                           color: AppTheme.primaryColor,
                         ),
                         Text(
@@ -199,9 +198,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
                               .map(
                                 (t) => Chip(
                                   label: Text(t),
-                                  backgroundColor: const Color(
-                                    0x4D_03A9F4,
-                                  ), // 0x4D = 30% opacity, 03A9F4 = your secondaryColor
+                                  backgroundColor: const Color(0x4D03A9F4),
                                 ),
                               )
                               .toList(),

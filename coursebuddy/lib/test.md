@@ -1,3 +1,26 @@
+// Deploy the function with Blaze plan or use the Emulator for local testing.
+// 1. Local Emulator Setup (since Blaze isn't an option)
+// 2. Cloud Function Testing
+// *********
+// upgrade to use storage and crashlytics
+// **************
+// 1. Create a User in Firebase Auth Console(First admin)
+// Go to Firebase Console → Authentication → Users → Add User.
+
+// Create an account with an email, password, and name of your choice.
+
+// 2. Add Their Role in Firestore
+// In Firestore → Data, create a document in the roles collection.
+
+// Use the new user's UID (shown in the Auth console).
+
+// Set the data:
+
+// {
+//   "role": "admin",
+//   "name": "Your Name",
+//   "linkedTo": []
+// }
 Phase 5: Parent Dashboard Logic
 
 View child’s course progress

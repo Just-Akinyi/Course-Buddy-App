@@ -2,7 +2,6 @@ import 'package:coursebuddy/assets/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 class ChatScreen extends StatefulWidget {
   final String otherUserEmail; // teacher or parent
@@ -17,36 +16,18 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   late String currentUserEmail;
   late String chatId;
-  late FirebaseMessaging _messaging;
 
   @override
   void initState() {
     super.initState();
     currentUserEmail = FirebaseAuth.instance.currentUser?.email ?? "unknown";
     chatId = _getChatId(currentUserEmail, widget.otherUserEmail);
-    _setupFCM();
   }
 
   String _getChatId(String a, String b) =>
-      (a.compareTo(b) < 0) ? "$a\_$b" : "$b\_$a";
+      (a.compareTo(b) < 0) ? "${a}_$b" : "${b}_$a";
 
-  void _setupFCM() async {
-    _messaging = FirebaseMessaging.instance;
-    await _messaging.requestPermission();
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.notification != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message.notification!.body ?? "New message"),
-            backgroundColor: AppTheme.primaryColor,
-          ),
-        );
-      }
-    });
-  }
-
-  void _sendMessage() async {
+  Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
@@ -65,11 +46,14 @@ class _ChatScreenState extends State<ChatScreen> {
         .add(message);
 
     _messageController.clear();
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent + 60,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+    if (!mounted) return;
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent + 60,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
@@ -90,8 +74,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   .orderBy('timestamp')
                   .snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData)
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
+                }
 
                 final messages = snapshot.data!.docs;
                 return ListView.builder(
@@ -116,11 +101,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         decoration: BoxDecoration(
                           color: isMe
                               ? AppTheme.primaryColor
-                              : AppTheme
-                                    .receivedMessageColor, // use theme color
+                              : AppTheme.receivedMessageColor,
                           borderRadius: BorderRadius.circular(12),
                         ),
-
                         child: Text(
                           msg['message'] ?? '',
                           style: TextStyle(
