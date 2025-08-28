@@ -163,7 +163,7 @@
                     }
                 },
                 {
-                    "source": "/home/justin/Desktop/Edutech(Now)/Course-Buddy-App/coursebuddy/android/app/src/main/res/values/styles.xml",
+                    "source": "/home/justin/Desktop/Tech Talk- Coursebuddy/coursebuddy/coursebuddy/android/app/src/main/res/values/styles.xml",
                     "from": {
                         "startLines": "3,14",
                         "startColumns": "4,4",
@@ -235,23 +235,6 @@
                     }
                 },
                 {
-                    "source": "/home/justin/Desktop/Edutech(Now)/Course-Buddy-App/coursebuddy/android/app/build/generated/res/processDebugGoogleServices/values/values.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "55,199,281,385,494,614,724",
-                        "endColumns": "143,81,103,108,119,109,78",
-                        "endOffsets": "194,276,380,489,609,719,798"
-                    },
-                    "to": {
-                        "startLines": "191,196,197,198,199,200,201",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "11632,12073,12155,12259,12368,12488,12598",
-                        "endColumns": "143,81,103,108,119,109,78",
-                        "endOffsets": "11771,12150,12254,12363,12483,12593,12672"
-                    }
-                },
-                {
                     "source": "/home/justin/.pub-cache/hosted/pub.dev/firebase_crashlytics-5.0.0/android/build/intermediates/packaged_res/debug/packageDebugResources/values/values.xml",
                     "from": {
                         "startLines": "2",
@@ -283,6 +266,23 @@
                         "startOffsets": "7096,8105",
                         "endColumns": "41,59",
                         "endOffsets": "7133,8160"
+                    }
+                },
+                {
+                    "source": "/home/justin/Desktop/Tech Talk- Coursebuddy/coursebuddy/coursebuddy/android/app/build/generated/res/processDebugGoogleServices/values/values.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "55,199,281,385,494,614,724",
+                        "endColumns": "143,81,103,108,119,109,78",
+                        "endOffsets": "194,276,380,489,609,719,798"
+                    },
+                    "to": {
+                        "startLines": "191,196,197,198,199,200,201",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "11632,12073,12155,12259,12368,12488,12598",
+                        "endColumns": "143,81,103,108,119,109,78",
+                        "endOffsets": "11771,12150,12254,12363,12483,12593,12672"
                     }
                 },
                 {
