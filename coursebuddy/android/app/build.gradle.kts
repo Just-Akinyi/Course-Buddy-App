@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.coursebuddy"
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -35,7 +35,7 @@ android {
         }
         release {
             // Release build: enable shrinking and minify
-            signingConfig = signingConfigs.getByName("debug") // replace with real signing for production
+            signingConfig = signingConfigs.getByName("debug") // use real signing for production
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -54,12 +54,12 @@ dependencies {
     // Firebase BoM ensures compatible versions
     implementation(platform("com.google.firebase:firebase-bom:34.1.0"))
     implementation("com.google.firebase:firebase-analytics")
-    // Add more Firebase dependencies as needed
+    // Add more Firebase dependencies here as needed
     // implementation("com.google.firebase:firebase-auth-ktx")
     // implementation("com.google.firebase:firebase-firestore-ktx")
 }
 
-// ✅ Show deprecation warnings during Java/Gradle compilation in release/debug
+// Show deprecation warnings during Java/Gradle compilation in release/debug
 tasks.withType<JavaCompile> {
     if (name.contains("Debug", ignoreCase = true)) {
         // Optional: suppress deprecation warnings in debug builds

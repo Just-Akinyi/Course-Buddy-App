@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id" translatable="false">782755032208-hnk6lfk0mmtri9hadgjtijhe5ti49463.apps.googleusercontent.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">782755032208</string>
+    <string name="google_api_key" translatable="false">AIzaSyDnzi-Xq0hk-9Tj9q0VJKgYfEpaQe4invc</string>
+    <string name="google_app_id" translatable="false">1:782755032208:android:aa18a5d4dec17066c53c15</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDnzi-Xq0hk-9Tj9q0VJKgYfEpaQe4invc</string>
+    <string name="google_storage_bucket" translatable="false">course-buddy-5788e.firebasestorage.app</string>
+    <string name="project_id" translatable="false">course-buddy-5788e</string>
+</resources>
