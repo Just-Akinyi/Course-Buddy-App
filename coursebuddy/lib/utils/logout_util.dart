@@ -4,19 +4,21 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 Future<void> logout(BuildContext context, {bool mounted = true}) async {
   try {
-    // Try to sign out from Firebase
+    // Sign out from Firebase
     await FirebaseAuth.instance.signOut();
 
-    // Try to sign out from Google (ignore if not signed-in there)
+    // Sign out from Google (ignore errors if not signed in)
     try {
       await GoogleSignIn().signOut();
     } catch (_) {
-      // No-op: GoogleSignIn may not be initialized or user may not be signed-in via Google
+      // No-op
     }
-  } finally {
-    // ✅ Guard context after async
-    if (!context.mounted || !mounted) return;
 
+    // ✅ Navigate only if context is still mounted
+    if (!context.mounted || !mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+  } catch (e) {
+    // Optional: handle logout errors if needed
+    debugPrint('Logout error: $e');
   }
 }
